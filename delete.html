@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task List</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; background-color: #f4f4f4; }
+        h2 { text-align: center; color: #333; }
+        .task { background: #fff; border-left: 5px solid #007bff; padding: 15px; margin: 10px 0; border-radius: 5px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); position: relative; }
+        .task h3 { margin: 0; color: #007bff; }
+        .task p { margin: 5px 0; }
+        .delete-btn { position: absolute; top: 10px; right: 10px; background: red; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; }
+        .filter-container { margin-bottom: 20px; }
+        select { padding: 5px; margin-right: 10px; }
+    </style>
+</head>
+<body>
+    <h2>Task List</h2>
+
+    <div class="filter-container">
+        <select id="filterStatus" onchange="loadTasks()">
+            <option value="">Filter by Status</option>
+            <option value="To do">To do</option>
+            <option value="In progress">In progress</option>
+            <option value="Done">Done</option>
+        </select>
+        <select id="filterPriority" onchange="loadTasks()">
+            <option value="">Filter by Priority</option>
+            <option value="Low">Low</option>
+            <option value="Medium">Medium</option>
+            <option value="High">High</option>
+        </select>
+        <select id="sortBy" onchange="loadTasks()">
+            <option value="dueDate">Sort by Due Date</option>
+            <option value="priority">Sort by Priority</option>
+            <option value="status">Sort by Status</option>
+        </select>
+    </div>
+
+    <div id="taskList"></div>
+    
+    <script>
+        function loadTasks() {
+            let taskList = document.getElementById("taskList");
+            let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+            
+            // Apply filters
+            let filterStatus = document.getElementById("filterStatus").value;
+            let filterPriority = document.getElementById("filterPriority").value;
+            
+            if (filterStatus) {
+                tasks = tasks.filter(task => task.status === filterStatus);
+            }
+            
+            if (filterPriority) {
+                tasks = tasks.filter(task => task.priority === filterPriority);
+            }
+
+            // Sort tasks
+            let sortBy = document.getElementById("sortBy").value;
+            if (sortBy === "dueDate") {
+                tasks.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+            } else if (sortBy === "priority") {
+                const priorityOrder = { 'High': 1, 'Medium': 2, 'Low': 3 };
+                tasks.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
+            } else if (sortBy === "status") {
+                const statusOrder = { 'To do': 1, 'In progress': 2, 'Done': 3 };
+                tasks.sort((a, b) => statusOrder[a.status] - statusOrder[b.status]);
+            }
+
+            // Render tasks
+            taskList.innerHTML = "";
+            tasks.forEach((task, index) => {
+                let taskDiv = document.createElement("div");
+                taskDiv.classList.add("task");
+                taskDiv.innerHTML = `
+                    <h3>${task.title}</h3>
+                    <p>Due: ${task.dueDate}</p>
+                    <p>Priority: ${task.priority}</p>
+                    <p>Status: ${task.status}</p>
+                    <button class="delete-btn" onclick="deleteTask(${index})">Delete</button>
+                `;
+                taskList.appendChild(taskDiv);
+            });
+        }
+        
+        function deleteTask(index) {
+            if (confirm("Are you sure you want to delete this task?")) {
+                let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+                tasks.splice(index, 1);
+                localStorage.setItem("tasks", JSON.stringify(tasks));
+                loadTasks();
+            }
+        }
+        
+        document.addEventListener("DOMContentLoaded", loadTasks);
+    </script>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Task</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ccc; border-radius: 10px; box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1); }
+        label { font-weight: bold; display: block; margin-top: 10px; }
+        input, textarea, select, button { width: 100%; padding: 8px; margin-top: 5px; border-radius: 5px; border: 1px solid #ccc; }
+        button { background-color: #28a745; color: white; font-size: 16px; cursor: pointer; margin-top: 15px; }
+        button:hover { background-color: #218838; }
+        .task-list { margin-top: 20px; }
+        .task-item { border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
+        .task-item h3 { margin: 0; }
+        .task-item p { margin: 5px 0; }
+        .task-item span { font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h2>Create New Task</h2>
+    <form id="taskForm">
+        <label for="title">Task Title:</label>
+        <input type="text" id="title" name="title" required>
+        
+        <label for="description">Description:</label>
+        <textarea id="description" name="description" rows="4" required></textarea>
+        
+        <label for="due-date">Due Date:</label>
+        <input type="date" id="due-date" name="due-date" required>
+        
+        <label for="priority">Priority Level:</label>
+        <select id="priority" name="priority">
+            <option value="Low">Low</option>
+            <option value="Medium">Medium</option>
+            <option value="High">High</option>
+        </select>
+        
+        <button type="submit">Create Task</button>
+    </form>
+
+    <div class="task-list">
+        <h3>Task List</h3>
+        <div id="tasksContainer"></div>
+    </div>
+
+    <script>
+        // Function to display tasks from localStorage
+        function displayTasks() {
+            let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+            let tasksContainer = document.getElementById("tasksContainer");
+            tasksContainer.innerHTML = ""; // Clear previous list
+            
+            tasks.forEach(function(task) {
+                let taskDiv = document.createElement("div");
+                taskDiv.classList.add("task-item");
+                
+                taskDiv.innerHTML = `
+                    <h3>${task.title}</h3>
+                    <p><span>Description:</span> ${task.description}</p>
+                    <p><span>Due Date:</span> ${task.dueDate}</p>
+                    <p><span>Priority:</span> ${task.priority}</p>
+                    <p><span>Status:</span> ${task.status}</p>
+                `;
+                
+                tasksContainer.appendChild(taskDiv);
+            });
+        }
+
+        // Load tasks on page load
+        window.onload = function() {
+            displayTasks();
+        }
+
+        // Handle form submission
+        document.getElementById("taskForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            
+            let title = document.getElementById("title").value;
+            let description = document.getElementById("description").value;
+            let dueDate = document.getElementById("due-date").value;
+            let priority = document.getElementById("priority").value;
+            
+            let task = { title, description, dueDate, priority, status: "To do" };
+            
+            let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+            tasks.push(task);
+            localStorage.setItem("tasks", JSON.stringify(tasks));
+
+            displayTasks();  // Refresh the task list
+            alert("Task Created Successfully!");
+        });
+    </script>
+</body>
+</html>

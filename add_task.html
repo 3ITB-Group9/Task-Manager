@@ -79,8 +79,8 @@
                 .filter(user => user.name.toLowerCase().includes(filter.toLowerCase()))
                 .forEach(user => {
                     let isSelected = selectedUsers.includes(user.name);
-                    userOptions.innerHTML += `
-                        <div class="user-item" onclick="toggleUser('${user.name}')">
+                    userOptions.innerHTML += 
+                        `<div class="user-item" onclick="toggleUser('${user.name}')">
                             <img src="${user.avatar}" alt="${user.name}">
                             ${user.name}
                             ${isSelected ? '<i class="fas fa-check text-success ms-auto"></i>' : ""}
@@ -105,8 +105,8 @@
 
             selectedUsers.forEach(user => {
                 let userData = users.find(u => u.name === user);
-                container.innerHTML += `
-                    <div class="assignee-badge">
+                container.innerHTML += 
+                    `<div class="assignee-badge">
                         <img src="${userData.avatar}" alt="${user}">
                         ${user}
                     </div>`;
@@ -135,6 +135,9 @@
             let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
             tasks.push(task);
             localStorage.setItem("tasks", JSON.stringify(tasks));
+
+            // New alert for assignee notification
+            alert(`${selectedUsers.join(", ")} is notified about the task assigned.`);
 
             alert("Task Created Successfully!");
             window.location.href = "task_list.html";

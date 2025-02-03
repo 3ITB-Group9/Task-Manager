@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Task</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 400px; margin: auto; padding: 20px; border: 1px solid #ccc; border-radius: 10px; box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1); }
+        label { font-weight: bold; display: block; margin-top: 10px; }
+        input, textarea, select, button { width: 100%; padding: 8px; margin-top: 5px; border-radius: 5px; border: 1px solid #ccc; }
+        button { background-color: #007bff; color: white; font-size: 16px; cursor: pointer; margin-top: 15px; }
+        button:hover { background-color: #0056b3; }
+    </style>
+</head>
+<body>
+    <h2>Edit Task</h2>
+    <form id="editTaskForm">
+        <label for="edit-title">Task Title:</label>
+        <input type="text" id="edit-title" required>
+        
+        <label for="edit-description">Description:</label>
+        <textarea id="edit-description" rows="4" required></textarea>
+        
+        <label for="edit-due-date">Due Date:</label>
+        <input type="date" id="edit-due-date" required>
+        
+        <label for="edit-priority">Priority Level:</label>
+        <select id="edit-priority">
+            <option value="Low">Low</option>
+            <option value="Medium">Medium</option>
+            <option value="High">High</option>
+        </select>
+        
+        <button type="submit">Save Changes</button>
+    </form>
+    
+    <script>
+        let index = localStorage.getItem("editTaskIndex");
+        let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+        let task = tasks[index];
+
+        document.getElementById("edit-title").value = task.title;
+        document.getElementById("edit-description").value = task.description;
+        document.getElementById("edit-due-date").value = task.dueDate;
+        document.getElementById("edit-priority").value = task.priority;
+
+        document.getElementById("editTaskForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            tasks[index] = {
+                title: document.getElementById("edit-title").value,
+                description: document.getElementById("edit-description").value,
+                dueDate: document.getElementById("edit-due-date").value,
+                priority: document.getElementById("edit-priority").value,
+                status: task.status
+            };
+
+            localStorage.setItem("tasks", JSON.stringify(tasks));
+            alert("Task updated successfully!");
+            window.location.href = "task_list.html";
+        });
+    </script>
+</body>
+</html>

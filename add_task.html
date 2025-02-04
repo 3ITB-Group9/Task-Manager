@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Task</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     <style>
         body { font-family: Arial, sans-serif; max-width: 400px; margin: auto; padding: 20px; border: 1px solid #ccc; border-radius: 10px; box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1); }
         label { font-weight: bold; display: block; margin-top: 10px; }
@@ -12,6 +14,12 @@
         button:hover { background-color: #218838; }
         .view-list-btn { background-color: #17a2b8; color: white; margin-top: 10px; text-align: center; display: inline-block; padding: 10px 15px; border-radius: 5px; cursor: pointer; }
         .view-list-btn:hover { background-color: #138496; }
+        .dropdown-menu { width: 100%; max-height: 250px; overflow-y: auto; }
+        .user-item { display: flex; align-items: center; padding: 5px 10px; cursor: pointer; }
+        .user-item img { width: 30px; height: 30px; border-radius: 50%; margin-right: 10px; }
+        .assignee-list { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 10px; }
+        .assignee-badge { display: flex; align-items: center; background: #e1e4e8; padding: 5px 10px; border-radius: 15px; }
+        .assignee-badge img { width: 20px; height: 20px; border-radius: 50%; margin-right: 5px; }
     </style>
 </head>
 <body>
@@ -19,43 +27,125 @@
     <form id="taskForm">
         <label for="title">Task Title:</label>
         <input type="text" id="title" name="title" required>
-        
+
         <label for="description">Description:</label>
         <textarea id="description" name="description" rows="4" required></textarea>
-        
+
         <label for="due-date">Due Date:</label>
         <input type="date" id="due-date" name="due-date" required>
-        
+
         <label for="priority">Priority Level:</label>
         <select id="priority" name="priority">
             <option value="Low">Low</option>
             <option value="Medium">Medium</option>
             <option value="High">High</option>
         </select>
-        
+
+        <!-- Assignee Dropdown -->
+        <label>Assign to:</label>
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle w-100" type="button" id="assigneeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                Select Assignees
+            </button>
+            <ul class="dropdown-menu p-2" id="userList">
+                <input type="text" id="userSearch" class="form-control mb-2" placeholder="Filter assignees">
+                <div id="userOptions"></div>
+            </ul>
+        </div>
+
+        <div class="assignee-list" id="selectedAssignees"></div>
+
         <button type="submit">Create Task</button>
     </form>
 
     <a href="task_list.html" class="view-list-btn">View Task List</a>
-    
+
     <script>
+        let users = [
+            { name: "Saymo Mathew", avatar: "https://i.pravatar.cc/40?u=1" },
+            { name: "Refran Desiree", avatar: "https://i.pravatar.cc/40?u=2" },
+            { name: "Sarino Nhoel", avatar: "https://i.pravatar.cc/40?u=3" },
+            { name: "Repaso Trevor", avatar: "https://i.pravatar.cc/40?u=4" },
+            { name: "Refrea John", avatar: "https://i.pravatar.cc/40?u=1" }
+        ];
+
+        let selectedUsers = [];
+
+        function renderUserList(filter = "") {
+            let userOptions = document.getElementById("userOptions");
+            userOptions.innerHTML = "";
+
+            users
+                .filter(user => user.name.toLowerCase().includes(filter.toLowerCase()))
+                .forEach(user => {
+                    let isSelected = selectedUsers.includes(user.name);
+                    userOptions.innerHTML += 
+                        `<div class="user-item" onclick="toggleUser('${user.name}')">
+                            <img src="${user.avatar}" alt="${user.name}">
+                            ${user.name}
+                            ${isSelected ? '<i class="fas fa-check text-success ms-auto"></i>' : ""}
+                        </div>`;
+                });
+        }
+
+        function toggleUser(userName) {
+            let index = selectedUsers.indexOf(userName);
+            if (index === -1) {
+                selectedUsers.push(userName);
+            } else {
+                selectedUsers.splice(index, 1);
+            }
+            renderUserList();
+            renderSelectedAssignees();
+        }
+
+        function renderSelectedAssignees() {
+            let container = document.getElementById("selectedAssignees");
+            container.innerHTML = "";
+
+            selectedUsers.forEach(user => {
+                let userData = users.find(u => u.name === user);
+                container.innerHTML += 
+                    `<div class="assignee-badge">
+                        <img src="${userData.avatar}" alt="${user}">
+                        ${user}
+                    </div>`;
+            });
+        }
+
+        document.getElementById("userSearch").addEventListener("input", function() {
+            renderUserList(this.value);
+        });
+
         document.getElementById("taskForm").addEventListener("submit", function(event) {
             event.preventDefault();
-            
+
             let title = document.getElementById("title").value;
             let description = document.getElementById("description").value;
             let dueDate = document.getElementById("due-date").value;
             let priority = document.getElementById("priority").value;
-            
-            let task = { title, description, dueDate, priority, status: "To do" };
-            
+
+            if (selectedUsers.length === 0) {
+                alert("Please assign at least one user.");
+                return;
+            }
+
+            let task = { title, description, dueDate, priority, assignedUsers: selectedUsers, status: "To do" };
+
             let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
             tasks.push(task);
             localStorage.setItem("tasks", JSON.stringify(tasks));
-            
+
+            // New alert for assignee notification
+            alert(`${selectedUsers.join(", ")} is notified about the task assigned.`);
+
             alert("Task Created Successfully!");
             window.location.href = "task_list.html";
         });
+
+        renderUserList();
     </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

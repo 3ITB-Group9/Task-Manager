@@ -49,6 +49,27 @@
             </tr>
         </thead>
         <tbody id="taskList"></tbody>
+
+    <div class="filter-container">
+        <select id="filterStatus" onchange="loadTasks()">
+            <option value="">Filter by Status</option>
+            <option value="To do">To do</option>
+            <option value="In progress">In progress</option>
+            <option value="Done">Done</option>
+        </select>
+        <select id="filterPriority" onchange="loadTasks()">
+            <option value="">Filter by Priority</option>
+            <option value="Low">Low</option>
+            <option value="Medium">Medium</option>
+            <option value="High">High</option>
+        </select>
+        <select id="sortBy" onchange="loadTasks()">
+            <option value="dueDate">Sort by Due Date</option>
+            <option value="priority">Sort by Priority</option>
+            <option value="status">Sort by Status</option>
+        </select>
+    </div>
+
     </table>
 
     <script>
